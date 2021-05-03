@@ -6,4 +6,15 @@
  */
 export const pick = (obj, ...fields) => {
 
-};
+    const newObj = {}
+    const arrayData = [...Object.entries(obj)]
+
+    for (let field of fields) {
+        for (let key of arrayData) {
+            if (field === key[0]) newObj[field] = key[1]
+        }
+    }
+
+    return newObj
+}
+

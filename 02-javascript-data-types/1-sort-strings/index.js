@@ -5,14 +5,15 @@
  * @returns {string[]}
  */
 export function sortStrings(arr, param = 'asc') {
-    let newArray = []
+
+    let newArray = [...arr]
+
     const compareStrings = (a, b) =>
         a.localeCompare(b, ['ru', 'en'], { caseFirst: 'upper' })
 
-    arr.sort(compareStrings)
-    newArray = (param === 'asc')
-        ? arr
-        : arr.reverse()
+    newArray.sort(compareStrings)
 
-    return newArray
+    return (param === 'desc')
+        ? newArray.reverse()
+        : newArray
 }
