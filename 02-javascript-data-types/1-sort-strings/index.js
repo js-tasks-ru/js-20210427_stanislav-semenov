@@ -9,11 +9,9 @@ export function sortStrings(arr, param = 'asc') {
     const newArray = [...arr]
 
     const compareStrings = (a, b) =>
-        a.localeCompare(b, ['ru', 'en'], { caseFirst: 'upper' })
+        (param === 'asc')
+            ? a.localeCompare(b, ['ru', 'en'], { caseFirst: 'upper' })
+            : b.localeCompare(a, ['ru', 'en'], { caseFirst: 'upper' })
 
-    newArray.sort(compareStrings)
-
-    return (param === 'desc')
-        ? newArray.reverse()
-        : newArray
+    return newArray.sort(compareStrings)
 }
