@@ -7,17 +7,11 @@
 export const omit = (obj, ...fields) => {
 
     const newObj = {}
-    const arrayData = Object.entries(obj)
 
-    for (let field of fields) {
-        for (let i = 0; i < arrayData.length; i++) {
-            if (field === arrayData[i][0])
-                arrayData.splice(i, 1)
-        }
+    for (const [key, value] of Object.entries(obj)) {
+        if (!fields.includes(key))
+            newObj[key] = value
     }
-    for (let key of arrayData)
-        newObj[key[0]] = key[1]
-
-    return newObj
+    return { ...newObj }
 }
 
