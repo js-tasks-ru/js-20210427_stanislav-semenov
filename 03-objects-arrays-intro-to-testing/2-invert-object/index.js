@@ -6,15 +6,16 @@
 export function invertObj(obj) {
 
     if (obj === undefined)
-        return undefined
-    else {
-        const newObj = {}
+        return
 
-        for (const [key, value] of Object.entries({ ...obj })) {
-            if (typeof value === 'object')
-                return console.error('object properties cannot be objects')
-            else newObj[value] = key
-        }
-        return newObj
+    const newObj = {}
+    const arrayEl = Object.entries({ ...obj })
+
+    for (const [key, value] of arrayEl) {
+        if (typeof value === 'object')
+            return console.error('object properties cannot be objects')
+        newObj[value] = key
     }
+    return newObj
+
 }

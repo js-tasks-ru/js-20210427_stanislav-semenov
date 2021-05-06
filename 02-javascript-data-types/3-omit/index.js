@@ -7,8 +7,8 @@
 export const omit = (obj, ...fields) => {
 
     const newObj = {}
-
-    for (const [key, value] of Object.entries(obj)) {
+    const array = Object.entries(obj)
+    for (const [key, value] of array) {
         if (!fields.includes(key))
             newObj[key] = value
     }

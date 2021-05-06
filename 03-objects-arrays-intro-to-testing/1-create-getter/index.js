@@ -5,37 +5,35 @@
  */
 function isEmpty(obj) {
 
-    if (obj === undefined) {
-        console.error('no Object ')
+    if (Object.keys(obj).length) {
+        console.error('Object is empty or no Object ')
         return true
     }
-    else {
-        for (let key in obj) {
-            return false;
-        }
-        console.error('Object is empty')
-        return true
-    }
+    return
 }
 
 export function createGetter(path) {
 
     if (path === undefined) {
         console.error('no Path')
-        return {}
+        return () => { }
     }
-    else
-        return (obj) => {
-            let value
-            if (!isEmpty(obj)) {
 
-                value = { ...obj }
+    const arrayKeys = path.split('.')
 
-                for (const key of path.split('.')) {
-                    if (!isEmpty(value))
-                        value = value[key]
-                }
+    return (obj) => {
+
+        let value
+        if (isEmpty(obj)) {
+
+            value = { ...obj }
+
+            for (const key of arrayKeys) {
+
+                if (isEmpty(value))
+                    value = value[key]
             }
-            return value
         }
+        return value
+    }
 }
