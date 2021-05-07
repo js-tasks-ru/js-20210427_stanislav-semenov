@@ -23,21 +23,16 @@ export function trimSymbols(string, size) {
 
     let arr = string.split('')
     let newStr = ''
-    const newArr = []
 
     for (let i = 0; i < arr.length; i++) {
 
-        if (arr[i] === arr[i + 1])
-            (i < size) && (newStr += arr[i])
+        (i < size) && (newStr += arr[i])
 
-        else {
-            (i < size) && (newStr += arr[i])
-            newArr.push(newStr)
+        if (arr[i] !== arr[i + 1]) {
             arr = arr.splice(i + 1, arr.length + 1)
             i = -1
-            newStr = ''
         }
     }
 
-    return newArr.join('')
+    return newStr
 }
