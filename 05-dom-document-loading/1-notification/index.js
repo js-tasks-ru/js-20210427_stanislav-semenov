@@ -37,7 +37,6 @@ export default class NotificationMessage {
         this.element = document.createElement('div');
         this.element.innerHTML = this.template;
         NotificationMessage.displayNotification = this.element;
-        console.log(this.element.innerHTML)
         return NotificationMessage.displayNotification;
     }
     remove() {
