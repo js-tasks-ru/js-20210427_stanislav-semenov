@@ -7,16 +7,19 @@ export default class NotificationMessage {
             duration = 0,
             type = ''
         } = {}) {
+        if (NotificationMessage.displayNotification) {
+            NotificationMessage.displayNotification.remove();
+        }
 
         this.string = string;
         this.duration = duration;
         this.type = type;
+
+        this.render();
     }
 
     show(sub = document.body) {
-        if (NotificationMessage.displayNotification) {
-            NotificationMessage.displayNotification.remove();
-        }
+
         sub.append(this.render());
         setTimeout(() => this.destroy(), this.duration);
     }
@@ -34,16 +37,18 @@ export default class NotificationMessage {
     }
 
     render() {
-        this.element = document.createElement('div');
-        this.element.innerHTML = this.template;
-        NotificationMessage.displayNotification = this.element;
-        return NotificationMessage.displayNotification;
+        const element = document.createElement('div');
+        element.innerHTML = this.template;
+        this.element = element.firstElementChild;
+        return NotificationMessage.displayNotification = this.element;
+
     }
     remove() {
         if (this.element) this.element.remove();
-        this.element = null
     }
     destroy() {
         this.remove();
+        this.element = null;
+        NotificationMessage.displayNotification = null;
     }
 }
