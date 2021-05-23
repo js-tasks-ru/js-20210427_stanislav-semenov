@@ -1,95 +1,93 @@
 export default class SortableTable {
-  element = null;
+  element;
   subElements = {};
 
-  handler = event => {
+  onSortClick = event => {
+    const column = event.target.closest('[data-sortable="true"]');
 
-    const target = event.target.textContent;
+    const toggleOrder = order => {
+      const orders = {
+        asc: 'desc',
+        desc: 'asc'
+      };
 
-    if (!event.target.textContent) return;
+      return orders[order];
+    };
 
-    for (const item of this.headerConfig) {
-      if (item.title === target) {
+    if (column) {
+      const { id, order } = column.dataset;
+      const sortedData = this.sortData(id, toggleOrder(order));
+      const arrow = column.querySelector('.sortable-table__sort-arrow');
 
-        if (this.sorted.id === item.id)
-          this.sorted.order = this.Toggler(this.sorted.order)
-        else this.sorted.order = 'asc';
+      column.dataset.order = toggleOrder(order);
 
-        this.sorted.id = item.id
-        break
+      if (!arrow) {
+        column.append(this.subElements.arrow);
       }
+
+      this.subElements.body.innerHTML = this.getTableRows(sortedData);
     }
-    this.sort(this.sorted.id, this.sorted.order)
-  }
+  };
 
-  constructor(headerConfig = [], {
+  constructor(headersConfig = [], {
     data = [],
-    sorted = {}
+    sorted = {
+      id: headersConfig.find(item => item.sortable).id, // title
+      order: 'asc'
+    }
   } = {}) {
-
-    this.headerConfig = headerConfig;
+    this.headersConfig = headersConfig;
     this.data = data;
     this.sorted = sorted;
 
     this.render();
-    this.sort(this.sorted.id, this.sorted.order);
+    this.initEventListeners();
   }
 
-
-  addEventListeners() {
-    this.element.addEventListener('click', this.handler)
-  }
-  Toggler(item) {
-    return item === 'asc'
-      ? 'desc'
-      : 'asc';
-  }
-
-  // #4
   getTableHeader() {
-
     return `<div data-element="header" class="sortable-table__header sortable-table__row">
-      ${this.headerConfig.map(item => this.getHeaderRow(item)).join('')}
+      ${this.headersConfig.map(item => this.getHeaderRow(item)).join('')}
     </div>`;
   }
 
-  // #5
   getHeaderRow({ id, title, sortable }) {
+    const order = this.sorted.id === id ? this.sorted.order : 'asc';
 
     return `
-      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}">
+      <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}" data-order="${order}">
         <span>${title}</span>
-        <span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>
+        ${this.getHeaderSortingArrow(id)}
       </div>
     `;
   }
 
-  // #6
-  getTableBody() {
+  getHeaderSortingArrow(id) {
+    const isOrderExist = this.sorted.id === id ? this.sorted.order : '';
 
+    return isOrderExist
+      ? `<span data-element="arrow" class="sortable-table__sort-arrow">
+          <span class="sort-arrow"></span>
+        </span>`
+      : '';
+  }
+
+  getTableBody(data) {
     return `
       <div data-element="body" class="sortable-table__body">
-        ${this.getTableRows(this.data)}
+        ${this.getTableRows(data)}
       </div>`;
   }
 
-  // #7
   getTableRows(data) {
-
-    return data.map(item => {
-      return `
-        <a href="/products/${item.id}" class="sortable-table__row">
-          ${this.getTableRow(item)}
-        </a>`;
-    }).join('');
+    return data.map(item => `
+      <div class="sortable-table__row">
+        ${this.getTableRow(item, data)}
+      </div>`
+    ).join('');
   }
 
-  // #8
   getTableRow(item) {
-
-    const cells = this.headerConfig.map(({ id, template }) => {
+    const cells = this.headersConfig.map(({ id, template }) => {
       return {
         id,
         template
@@ -102,71 +100,58 @@ export default class SortableTable {
         : `<div class="sortable-table__cell">${item[id]}</div>`;
     }).join('');
   }
-  // #3
-  getTable() {
 
+  getTable(data) {
     return `
       <div class="sortable-table">
         ${this.getTableHeader()}
-        ${this.getTableBody()}
+        ${this.getTableBody(data)}
       </div>`;
   }
-  // #2
-  render() {
 
+  render() {
+    const { id, order } = this.sorted;
     const wrapper = document.createElement('div');
 
-    wrapper.innerHTML = this.getTable();
+    const sortedData = this.sortData(id, order);
+
+    wrapper.innerHTML = this.getTable(sortedData);
 
     const element = wrapper.firstElementChild;
 
     this.element = element;
     this.subElements = this.getSubElements(element);
-    this.addEventListeners()
-
   }
 
-  sort(field, order) {
-
-    const sortedData = this.sortData(field, order);
-    const allColumns = this.element.querySelectorAll('.sortable-table__cell[data-id]');
-    const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id="${field}"]`);
-
-    allColumns.forEach(column => {
-      column.dataset.order = '';
-    });
-
-    currentColumn.dataset.order = order;
-
-    this.subElements.body.innerHTML = this.getTableRows(sortedData);
+  initEventListeners() {
+    this.subElements.header.addEventListener('pointerdown', this.onSortClick);
   }
 
-  sortData(field, order) {
-
+  sortData(id, order) {
     const arr = [...this.data];
-    const column = this.headerConfig.find(item => item.id === field);
-    const { sortType } = column;
+    const column = this.headersConfig.find(item => item.id === id);
+    const { sortType, customSorting } = column;
     const directions = {
       asc: 1,
-      desc: -1
+      desc: - 1
     };
     const direction = directions[order];
 
     return arr.sort((a, b) => {
       switch (sortType) {
         case 'number':
-          return direction * (a[field] - b[field]);
+          return direction * (a[id] - b[id]);
         case 'string':
-          return direction * a[field].localeCompare(b[field], ['ru', 'en'], { caseFirst: 'upper' });
+          return direction * a[id].localeCompare(b[id], ['ru', 'en']);
+        case 'custom':
+          return direction * customSorting(a, b);
         default:
-          return direction * (a[field] - b[field]);
+          return direction * (a[id] - b[id]);
       }
     });
   }
 
-  // #1
   getSubElements(element) {
-
     const result = {};
     const elements = element.querySelectorAll('[data-element]');
 
@@ -180,14 +165,11 @@ export default class SortableTable {
   }
 
   remove() {
-    if (this.element) {
-      this.element.remove();
-    }
+    this.element.remove();
   }
 
   destroy() {
     this.remove();
-    this.element = null;
     this.subElements = {};
   }
 }
