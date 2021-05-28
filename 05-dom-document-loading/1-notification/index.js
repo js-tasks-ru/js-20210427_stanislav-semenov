@@ -20,7 +20,7 @@ export default class NotificationMessage {
 
     show(sub = document.body) {
 
-        sub.append(this.render());
+        sub.append(this.element);
         setTimeout(() => this.destroy(), this.duration);
     }
 
