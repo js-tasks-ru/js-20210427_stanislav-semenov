@@ -144,7 +144,9 @@ export default class ProductForm {
       this.setFormData();
       this.initEventListeners();
     }
+    return this.element;
   }
+
 
   renderForm() {
     const element = document.createElement('div');
