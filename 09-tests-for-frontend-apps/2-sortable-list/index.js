@@ -1,5 +1,6 @@
 export default class SortableList {
     onPointerMove = ({ clientX, clientY }) => {
+
         this.moveDraggingAt(clientX, clientY);
 
         const prevElem = this.placeholderElement.previousElementSibling;
