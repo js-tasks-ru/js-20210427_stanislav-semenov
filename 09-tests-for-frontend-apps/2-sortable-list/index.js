@@ -30,11 +30,12 @@ export default class SortableList {
         if (nextElem) {
             const { top, height } = nextElem.getBoundingClientRect();
             const middleNextElem = top + height / 2;
-
-            if (clientY > middleNextElem) {
-                return nextElem.after(this.placeholderElement);
+            if (clientY > middleNextElem && nextElem.nextElementSibling) {
+              return nextElem.after(this.placeholderElement);
+            } else if (!nextElem.nextElementSibling) {
+              return nextElem.before(this.placeholderElement);
             }
-        }
+          }
 
         this.scrollIfCloseToWindowEdge(clientY);
     };
